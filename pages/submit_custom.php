@@ -1,16 +1,5 @@
 <?php
-/**
- * submit_custom.php — handles customization form submissions
- *
- * Accepts multipart/form-data (because of optional file upload).
- * Saves request to DB; optionally saves uploaded image to /uploads.
- *
- * SECURITY:
- *  - CSRF verified via POST field
- *  - finfo used for real MIME detection (not client-supplied type)
- *  - Random filename prevents path traversal / overwrite attacks
- *  - Prepared statements
- */
+
 
 require_once '../includes/config.php';
 require_once '../includes/db.php';

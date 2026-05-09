@@ -1,15 +1,4 @@
 <?php
-/**
- * login.php — handles POST login requests (JSON API)
- *
- * SECURITY PRACTICES:
- *  1. CSRF token verification
- *  2. Input sanitization before any DB query
- *  3. Prepared statements (PDO) — no SQL injection possible
- *  4. password_verify() — constant-time comparison
- *  5. session_regenerate_id() after login — prevents session fixation
- *  6. Generic error message — does NOT reveal whether email exists
- */
 
 require_once '../includes/config.php';
 require_once '../includes/db.php';

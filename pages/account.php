@@ -1,13 +1,4 @@
 <?php
-/**
- * account.php — User Account Dashboard
- *
- * NEW PAGE (did not exist in original project):
- *  - Shows order history fetched from DB
- *  - Shows custom request history
- *  - Profile info display
- *  - Requires login (redirects if not authenticated)
- */
 
 require_once '../includes/auth.php';
 require_once '../includes/db.php';

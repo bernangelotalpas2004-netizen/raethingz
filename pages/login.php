@@ -1,14 +1,4 @@
 <?php
-/**
- * login.php — Login Page
- *
- * IMPROVEMENT over original login.html:
- *  - Already-logged-in users are redirected immediately
- *  - CSRF token in meta tag (read by script.js)
- *  - Alert div for JS-driven feedback (replaces inline alert())
- *  - Semantic auth-section / auth-card classes
- *  - Link to register page actually works
- */
 
 require_once '../includes/auth.php';
 require_once '../includes/helpers.php';

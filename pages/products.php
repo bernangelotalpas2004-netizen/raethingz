@@ -1,11 +1,4 @@
 <?php
-/**
- * products.php — Products Listing Page
- *
- * IMPROVEMENT: Products are no longer hardcoded in JS.
- * They're fetched from fetch_products.php (which reads from DB).
- * This page only renders the shell; JS populates the grid.
- */
 
 require_once '../includes/auth.php';
 require_once '../includes/helpers.php';

@@ -1,12 +1,4 @@
 <?php
-/**
- * helpers.php
- * Reusable input sanitization, validation, and response utilities.
- *
- * WHY THIS FILE EXISTS:
- *  Centralising these functions means every form handler uses the same
- *  battle-tested rules instead of reimplementing them inconsistently.
- */
 
 // ── Sanitization ──────────────────────────────────────────────────────────────
 

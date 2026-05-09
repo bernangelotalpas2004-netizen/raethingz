@@ -1,21 +1,4 @@
 <?php
-/**
- * fetch_products.php — Returns product data as JSON
- *
- * WHY A SEPARATE API ENDPOINT?
- *  Previously products were hardcoded in JavaScript.
- *  Now the JS fetches from this PHP file, which reads from the DB.
- *  This means adding/editing products only requires a DB change — no code edits.
- *
- * QUERY PARAMS (all optional):
- *  ?category=Flower   → filter by category slug
- *  ?search=rose       → search name/description
- *  ?featured=1        → return only bestseller/new items (for home page)
- *
- * SECURITY:
- *  - Only SELECT, no user input goes into raw SQL (prepared statements)
- *  - Output escaped by json_encode
- */
 
 require_once '../includes/db.php';
 require_once '../includes/helpers.php';

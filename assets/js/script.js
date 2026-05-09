@@ -1,20 +1,3 @@
-/**
- * Raethingz Handicrafts — Main JavaScript v2
- *
- * IMPROVEMENTS OVER ORIGINAL:
- *  - Products now fetched from PHP/DB API (not hardcoded)
- *  - Checkout POSTs to place_order.php (real DB persistence)
- *  - Login / Register POST to PHP handlers via fetch()
- *  - CSRF token included in every form submission
- *  - Escape HTML utility applied to all DOM insertions
- *  - Register form integrated into module pattern (was orphaned)
- *  - Loading states on async operations
- *  - Debounced search input (better performance)
- *
- * ARCHITECTURE:
- *  Each page calls its own init function at the bottom via page detection.
- *  Shared utilities (Cart, Toast, escapeHTML) are available globally.
- */
 
 'use strict';
 

@@ -1,17 +1,4 @@
 <?php
-/**
- * navbar.php — shared navigation component
- *
- * HOW IT REMOVES DUPLICATION:
- *  Previously each HTML file had its own copy of the nav, meaning a small
- *  change (e.g. adding a new link) required editing 5 files.
- *  Now you change this one file and every page updates automatically.
- *
- * Usage:  <?php require_once 'includes/navbar.php'; ?>
- *
- * Expects:  $currentPage variable set by the including file, e.g.
- *           $currentPage = 'products';
- */
 
 require_once __DIR__ . '/auth.php';
 startSession();

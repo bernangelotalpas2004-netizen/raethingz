@@ -1,20 +1,4 @@
 <?php
-/**
- * place_order.php — accepts a checkout POST and saves to DB
- *
- * FLOW:
- *  1. Validate CSRF + inputs
- *  2. Validate cart items against live DB stock
- *  3. Wrap INSERT (orders + order_items + stock UPDATE) in a transaction
- *     → If any step fails, everything rolls back (no phantom orders/stock)
- *  4. Return JSON success/error
- *
- * SECURITY:
- *  - CSRF verified
- *  - All inputs sanitized
- *  - Prepared statements only
- *  - Transaction guarantees data consistency
- */
 
 require_once '../includes/config.php';
 require_once '../includes/db.php';

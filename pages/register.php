@@ -1,14 +1,5 @@
 <?php
-/**
- * register.php — Registration Page
- *
- * IMPROVEMENT over original register.html:
- *  - Was missing navbar, footer, and any real backend
- *  - Password was stored in plaintext in localStorage (🚨 critical security issue)
- *  - Now submits to register_handler.php which bcrypt-hashes the password
- *  - Full validation (client-side in JS + server-side in PHP)
- *  - CSRF protection
- */
+
 
 require_once '../includes/auth.php';
 require_once '../includes/helpers.php';

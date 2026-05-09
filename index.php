@@ -1,13 +1,4 @@
 <?php
-/**
- * index.php — Home Page
- *
- * IMPROVEMENT: Converted from static index.html to dynamic PHP.
- * - Shared navbar/footer via require_once (no duplication)
- * - Session-aware (shows user name in nav if logged in)
- * - CSRF token injected into meta tag for JS to read
- * - Featured products loaded dynamically via JS → fetch_products.php
- */
 
 require_once 'includes/auth.php';
 require_once 'includes/helpers.php';

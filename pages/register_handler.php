@@ -1,14 +1,5 @@
 <?php
-/**
- * register_handler.php — handles POST registration requests (JSON API)
- *
- * SECURITY PRACTICES:
- *  1. CSRF verification
- *  2. Full input sanitization & validation
- *  3. Email uniqueness check via prepared statement
- *  4. Password hashed with password_hash(BCRYPT, cost 12) — never stored plain
- *  5. Immediate login after registration (session regenerated)
- */
+
 
 require_once '../includes/config.php';
 require_once '../includes/db.php';

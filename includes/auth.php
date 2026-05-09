@@ -1,13 +1,4 @@
 <?php
-/**
- * auth.php
- * Session management and authentication helpers.
- *
- * SECURITY PRACTICES:
- *  - session_regenerate_id() on login prevents session fixation attacks
- *  - password_hash() with BCRYPT (cost 12) for strong hashing
- *  - CSRF tokens protect forms from cross-site request forgery
- */
 
 require_once __DIR__ . '/config.php';
 

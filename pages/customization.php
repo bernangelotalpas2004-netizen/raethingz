@@ -1,13 +1,4 @@
 <?php
-/**
- * customization.php — Custom Order Request Page
- *
- * IMPROVEMENT over original customization.html:
- *  - Form now POSTs to submit_custom.php (saved to DB)
- *  - File upload UI with drag-and-drop preview
- *  - CSRF protection
- *  - Session-aware (pre-fills name if logged in)
- */
 
 require_once '../includes/auth.php';
 require_once '../includes/helpers.php';

@@ -1,10 +1,5 @@
 <?php
-/**
- * footer.php — shared footer component
- *
- * Usage:  <?php require_once 'includes/footer.php'; ?>
- * In pages/ subdirectory: <?php require_once '../includes/footer.php'; ?>
- */
+
 ?>
 <!-- ===== CART OVERLAY & SIDEBAR (shared across all pages) ===== -->
 <div class="cart-overlay" id="cart-overlay" aria-hidden="true"></div>
