@@ -1,0 +1,14 @@
+# Sensitive files
+includes/config.php
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
