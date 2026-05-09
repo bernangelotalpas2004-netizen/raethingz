@@ -253,7 +253,7 @@ function initCartSidebar() {
         el.setAttribute('role', 'listitem');
 
         const imgContent = item.image
-        ? `<img src="${escapeHTML(imgPath(item.image))}"" loading="lazy">`
+        ? `<img src="${escapeHTML(imgPath(item.image))}" alt="${escapeHTML(item.name)}" loading="lazy">`
           : item.icon ?? '🎁';
 
         el.innerHTML = `
@@ -520,7 +520,7 @@ function renderProductCards(grid, products, limit = false) {
     card.innerHTML = `
       <div class="product-img-wrap">
         ${badge}
-        <img class="product-img" src="${escapeHTML(imgPath(item.image ?? ''))}"
+        <img class="product-img" src="${escapeHTML(imgPath(product.image ?? ''))}"
              alt="${escapeHTML(product.name)}" loading="lazy"
              onerror="this.style.display='none'">
       </div>
