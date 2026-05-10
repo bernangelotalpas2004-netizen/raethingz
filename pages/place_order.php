@@ -129,7 +129,7 @@ try {
          VALUES (:oid, :pid, :qty, :price)'
     );
     $stockStmt = $pdo->prepare(
-        'UPDATE stock SET quantity = quantity - :qty WHERE product_id = :pid AND quantity >= :qty'
+        'UPDATE stock SET quantity = quantity - :qty WHERE product_id = :pid AND quantity >= :qty_check'
     );
 
     foreach ($validatedItems as $vi) {
@@ -141,7 +141,7 @@ try {
         ]);
 
         // Only update stock for products that track it
-        $stockStmt->execute([':qty' => $vi['qty'], ':pid' => $vi['id']]);
+        $stockStmt->execute([':qty' => $vi['qty'], ':qty_check' => $vi['qty'], ':pid' => $vi['id']]);
     }
 
     $pdo->commit();
