@@ -38,8 +38,10 @@ try {
     }
 
     if ($search !== '') {
-        $sql .= ' AND (p.product_name LIKE :search OR p.description LIKE :search OR c.category_name LIKE :search)';
-        $params[':search'] = '%' . $search . '%';
+        $sql .= ' AND (p.product_name LIKE :search1 OR p.description LIKE :search2 OR c.category_name LIKE :search3)';
+        $params[':search1'] = '%' . $search . '%';
+        $params[':search2'] = '%' . $search . '%';
+        $params[':search3'] = '%' . $search . '%';
     }
 
     if ($featured) {

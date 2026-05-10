@@ -489,11 +489,17 @@ async function initProducts() {
   let allProducts = [];
   let activeCategory = 'all';
 
-  // ── Read initial category from URL query param ─────────────────
+  // ── Read initial params from URL query string ──────────────────
   const urlParams = new URLSearchParams(window.location.search);
   const urlCategory = urlParams.get('category');
+  const urlSearch = urlParams.get('search');
   if (urlCategory) {
     activeCategory = urlCategory;
+  }
+
+  // ── Pre-fill search input if search param is in URL ────────────
+  if (urlSearch && searchInput) {
+    searchInput.value = urlSearch;
   }
 
   // ── Update filter button active state based on URL param ───────
@@ -503,7 +509,7 @@ async function initProducts() {
     });
   }
 
-  // ── Load products from DB ──────────────────────────────────────
+  // ── Load products from DB with initial search from URL ─────────
   async function loadProducts(category = 'all', search = '') {
     grid.innerHTML = `<div class="loading-grid"><div class="spinner"></div> Loading products...</div>`;
 
@@ -525,7 +531,8 @@ async function initProducts() {
     }
   }
 
-  await loadProducts(activeCategory);
+  // Pass both category and search from URL on initial load
+  await loadProducts(activeCategory, urlSearch || '');
 
   // Search (debounced)
   searchInput?.addEventListener('input', debounce(() => {
