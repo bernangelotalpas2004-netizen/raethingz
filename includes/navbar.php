@@ -22,7 +22,10 @@ $navLinks = [
 ];
 
 if ($user) {
-    $navLinks['account'] = ['label' => '👤 ' . htmlspecialchars($user['name']), 'href' => 'pages/account.php'];
+    $avatarHtml = !empty($user['profile_pic'])
+        ? '<span class="nav-avatar" style="background-image:url(\'../' . htmlspecialchars($user['profile_pic']) . '\')"></span>'
+        : '';
+    $navLinks['account'] = ['label' => $avatarHtml . htmlspecialchars($user['name']), 'href' => 'pages/account.php'];
 } else {
     $navLinks['login'] = ['label' => 'Login', 'href' => 'pages/login.php'];
 }
@@ -81,7 +84,11 @@ function navHref(string $href, string $currentPage): string {
             <a href="<?= navHref($link['href'], $currentPage) ?>"
                class="<?= $currentPage === $key ? 'active' : '' ?>"
                <?= $currentPage === $key ? 'aria-current="page"' : '' ?>>
-              <?= htmlspecialchars($link['label']) ?>
+              <?php if ($key === 'account' && !empty($user['profile_pic'])): ?>
+                <?= $link['label'] ?>
+              <?php else: ?>
+                <?= htmlspecialchars($link['label']) ?>
+              <?php endif; ?>
             </a>
           </li>
         <?php endif; ?>

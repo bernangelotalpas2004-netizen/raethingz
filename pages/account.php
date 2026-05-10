@@ -97,6 +97,54 @@ $statusColors = [
       border: 3px solid rgba(255,255,255,0.6);
       display: flex; align-items: center; justify-content: center;
       font-size: 2rem; margin: 0 auto 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .account-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .account-avatar-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .account-avatar:hover .account-avatar-overlay {
+      opacity: 1;
+    }
+    .avatar-actions {
+      display: flex; gap: 8px; justify-content: center;
+      margin-top: 8px;
+    }
+    .avatar-actions .btn-avatar {
+      font-size: 0.72rem; padding: 4px 12px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid rgba(255,255,255,0.5);
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .avatar-actions .btn-avatar:hover {
+      background: rgba(255,255,255,0.15);
+      border-color: #fff;
+    }
+    .avatar-actions .btn-avatar-remove {
+      border-color: rgba(255,100,100,0.5);
+      color: #ffb3b3;
+    }
+    .avatar-actions .btn-avatar-remove:hover {
+      background: rgba(255,80,80,0.25);
+      border-color: #ff6b6b;
     }
     .account-name { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
     .account-email { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
@@ -186,10 +234,27 @@ $statusColors = [
           <!-- ── Sidebar ── -->
           <div>
             <div class="account-card">
-              <div class="account-card-header">
-                <div class="account-avatar" aria-hidden="true">👤</div>
+              <div class="account-card-header" id="avatar-header">
+                <div class="account-avatar" id="avatar-preview" role="button" tabindex="0" aria-label="Change profile picture">
+                  <?php if (!empty($user['profile_pic'])): ?>
+                    <img src="../<?= htmlspecialchars($user['profile_pic']) ?>" alt="<?= htmlspecialchars($user['name']) ?>" id="avatar-img">
+                  <?php else: ?>
+                    <span id="avatar-placeholder" aria-hidden="true">👤</span>
+                  <?php endif; ?>
+                  <div class="account-avatar-overlay">Change</div>
+                </div>
                 <div class="account-name"><?= htmlspecialchars($user['name']) ?></div>
                 <div class="account-email"><?= htmlspecialchars($user['email']) ?></div>
+                <div class="avatar-actions">
+                  <button class="btn-avatar" id="btn-upload-avatar" aria-label="Upload profile picture">📷 Change</button>
+                  <?php if (!empty($user['profile_pic'])): ?>
+                    <button class="btn-avatar btn-avatar-remove" id="btn-remove-avatar" aria-label="Remove profile picture">✕ Remove</button>
+                  <?php endif; ?>
+                </div>
+                <form id="avatar-upload-form" style="display:none;" aria-hidden="true">
+                  <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+                  <input type="file" id="avatar-file-input" name="avatar" accept="image/jpeg,image/png,image/webp" aria-label="Choose profile picture">
+                </form>
               </div>
               <nav class="account-nav" aria-label="Account navigation">
                 <a href="#orders">📦 My Orders</a>
@@ -391,6 +456,157 @@ $statusColors = [
       btn.textContent = 'Cancel';
     }
   }
+
+  /* ================================================================
+     PROFILE PICTURE UPLOAD MODULE
+     ================================================================ */
+  function initAvatarUpload() {
+    const fileInput   = document.getElementById('avatar-file-input');
+    const uploadBtn   = document.getElementById('btn-upload-avatar');
+    const removeBtn   = document.getElementById('btn-remove-avatar');
+    const avatarImg   = document.getElementById('avatar-img');
+    const avatarPlaceholder = document.getElementById('avatar-placeholder');
+    const avatarPreview     = document.getElementById('avatar-preview');
+
+    // Trigger file input when "Change" button is clicked
+    uploadBtn?.addEventListener('click', () => fileInput?.click());
+
+    // Also trigger on avatar preview click
+    avatarPreview?.addEventListener('click', () => fileInput?.click());
+
+    // Handle file selection → auto-upload
+    fileInput?.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      // Client-side validation
+      const maxSize = 5 * 1024 * 1024; // 5 MB
+      if (file.size > maxSize) {
+        if (typeof Toast !== 'undefined') {
+          Toast.show('File too large. Maximum size is 5 MB.', 'error');
+        } else {
+          alert('File too large. Maximum size is 5 MB.');
+        }
+        fileInput.value = '';
+        return;
+      }
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        if (typeof Toast !== 'undefined') {
+          Toast.show('Invalid file type. Allowed: JPG, PNG, WEBP.', 'error');
+        } else {
+          alert('Invalid file type. Allowed: JPG, PNG, WEBP.');
+        }
+        fileInput.value = '';
+        return;
+      }
+
+      // Show loading
+      if (typeof Toast !== 'undefined') {
+        Toast.show('Uploading...', 'info', 0);
+      }
+
+      const fd = new FormData();
+      fd.append('csrf_token', document.querySelector('meta[name="csrf-token"]')?.content ?? '');
+      fd.append('avatar', file, file.name);
+      fd.append('action', 'upload');
+
+      try {
+        const res = await fetch('upload_avatar.php', { method: 'POST', body: fd });
+        const data = await res.json();
+
+        if (data.success) {
+          // Update the avatar instantly
+          if (avatarPlaceholder) {
+            avatarPlaceholder.style.display = 'none';
+          }
+          if (avatarImg) {
+            avatarImg.src = '../' + data.data.path + '?v=' + Date.now();
+            avatarImg.style.display = 'block';
+          } else {
+            // Create img element if it doesn't exist
+            const img = document.createElement('img');
+            img.src = '../' + data.data.path + '?v=' + Date.now();
+            img.alt = 'Profile picture';
+            img.id = 'avatar-img';
+            const preview = document.getElementById('avatar-preview');
+            if (preview) {
+              preview.insertBefore(img, preview.querySelector('.account-avatar-overlay'));
+            }
+          }
+
+          // Show remove button if hidden
+          if (removeBtn) {
+            removeBtn.style.display = '';
+          }
+
+          if (typeof Toast !== 'undefined') {
+            Toast.show(data.message, 'success', 4000);
+          }
+        } else {
+          if (typeof Toast !== 'undefined') {
+            Toast.show(data.message || 'Upload failed.', 'error');
+          } else {
+            alert(data.message || 'Upload failed.');
+          }
+        }
+      } catch (err) {
+        console.error('Avatar upload error:', err);
+        if (typeof Toast !== 'undefined') {
+          Toast.show('Network error. Please try again.', 'error');
+        } else {
+          alert('Network error. Please try again.');
+        }
+      } finally {
+        fileInput.value = '';
+      }
+    });
+
+    // Handle remove
+    removeBtn?.addEventListener('click', async () => {
+      if (!confirm('Remove your profile picture?')) return;
+
+      try {
+        const res = await fetch('upload_avatar.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            csrf_token: document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+            action: 'remove',
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // Show placeholder, hide img
+          if (avatarImg) avatarImg.style.display = 'none';
+          if (avatarPlaceholder) avatarPlaceholder.style.display = '';
+          if (removeBtn) removeBtn.style.display = 'none';
+
+          if (typeof Toast !== 'undefined') {
+            Toast.show(data.message, 'success', 4000);
+          }
+        } else {
+          if (typeof Toast !== 'undefined') {
+            Toast.show(data.message || 'Failed to remove.', 'error');
+          } else {
+            alert(data.message || 'Failed to remove.');
+          }
+        }
+      } catch (err) {
+        console.error('Avatar remove error:', err);
+        if (typeof Toast !== 'undefined') {
+          Toast.show('Network error. Please try again.', 'error');
+        } else {
+          alert('Network error. Please try again.');
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initAvatarUpload);
   </script>
 </body>
 </html>

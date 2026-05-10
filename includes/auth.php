@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/db.php';
 
 // ── Start Session Securely ────────────────────────────────────────────────────
 function startSession(): void {
@@ -44,11 +45,27 @@ function isLoggedIn(): bool {
 function currentUser(): ?array {
     startSession();
     if (empty($_SESSION['user_id'])) return null;
+
+    // Fetch profile_pic from DB only if not cached in session yet
+    if (!array_key_exists('user_profile_pic', $_SESSION)) {
+        try {
+            $pdo  = getDB();
+            $stmt = $pdo->prepare('SELECT profile_pic FROM users WHERE user_id = :uid LIMIT 1');
+            $stmt->execute([':uid' => $_SESSION['user_id']]);
+            $row  = $stmt->fetch();
+            $_SESSION['user_profile_pic'] = $row['profile_pic'] ?? '';
+        } catch (\PDOException $e) {
+            error_log('[currentUser DB] ' . $e->getMessage());
+            $_SESSION['user_profile_pic'] = '';
+        }
+    }
+
     return [
-        'id'    => $_SESSION['user_id'],
-        'name'  => $_SESSION['user_name']  ?? '',
-        'email' => $_SESSION['user_email'] ?? '',
-        'role'  => $_SESSION['user_role']  ?? 'customer',
+        'id'          => $_SESSION['user_id'],
+        'name'        => $_SESSION['user_name']  ?? '',
+        'email'       => $_SESSION['user_email'] ?? '',
+        'role'        => $_SESSION['user_role']  ?? 'customer',
+        'profile_pic' => $_SESSION['user_profile_pic'] ?? '',
     ];
 }
 

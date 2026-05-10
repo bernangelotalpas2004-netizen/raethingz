@@ -1,5 +1,22 @@
 <?php
 
+require_once __DIR__ . '/auth.php';
+startSession();
+
+// Detect if we're being rendered from inside the /pages/ subdirectory
+// so footer links resolve correctly regardless of where footer.php is included from.
+$inPagesDir = isset($_SERVER['SCRIPT_NAME']) && strpos($_SERVER['SCRIPT_NAME'], '/pages/') !== false;
+$prefix     = $inPagesDir ? '../' : '';
+
+$user = currentUser();
+if ($user) {
+    $footerAccountLabel = '👤 ' . htmlspecialchars($user['name']);
+    $footerAccountHref  = $prefix . 'pages/account.php';
+} else {
+    $footerAccountLabel = 'Login';
+    $footerAccountHref  = $prefix . 'pages/login.php';
+}
+
 ?>
 <!-- ===== CART OVERLAY & SIDEBAR (shared across all pages) ===== -->
 <div class="cart-overlay" id="cart-overlay" aria-hidden="true"></div>
@@ -117,10 +134,10 @@
       <div class="footer-col">
         <h4>Quick Links</h4>
         <ul>
-          <li><a href="index.php">Home</a></li>
-          <li><a href="pages/products.php">Products</a></li>
-          <li><a href="pages/customization.php">Customization</a></li>
-          <li><a href="pages/login.php">Login</a></li>
+          <li><a href="<?= $prefix ?>index.php">Home</a></li>
+          <li><a href="<?= $prefix ?>pages/products.php">Products</a></li>
+          <li><a href="<?= $prefix ?>pages/customization.php">Customization</a></li>
+          <li><a href="<?= $footerAccountHref ?>"><?= $footerAccountLabel ?></a></li>
         </ul>
       </div>
       <div class="footer-col">
