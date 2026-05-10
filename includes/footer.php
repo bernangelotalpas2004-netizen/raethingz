@@ -53,6 +53,50 @@
           <span class="form-error" role="alert">Please enter a valid PH mobile number.</span>
         </div>
 
+        <!-- Payment Method -->
+        <div class="form-group">
+          <label>Payment Method <span aria-hidden="true">*</span></label>
+          <div class="payment-options">
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="cod" checked />
+              <span class="payment-option-content">
+                <span class="payment-icon" aria-hidden="true">💵</span>
+                <span>
+                  <strong>Cash on Delivery</strong>
+                  <small>Pay when you receive</small>
+                </span>
+              </span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="gcash" />
+              <span class="payment-option-content">
+                <span class="payment-icon" aria-hidden="true">📱</span>
+                <span>
+                  <strong>GCash</strong>
+                  <small>Pay via GCash</small>
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- GCash Details (hidden by default) -->
+        <div class="gcash-details" id="gcash-details" style="display:none;">
+          <div class="gcash-info">
+            <p><strong>GCash Payment Details:</strong></p>
+            <p>Send payment to the following GCash account:</p>
+            <div class="gcash-account">
+              <span class="gcash-label">GCash Number:</span>
+              <span class="gcash-value">0975-013-7786</span>
+            </div>
+            <div class="gcash-account">
+              <span class="gcash-label">Account Name:</span>
+              <span class="gcash-value">Raethingz Handicrafts</span>
+            </div>
+            <p class="gcash-note">After sending payment, your order will be processed once confirmed.</p>
+          </div>
+        </div>
+
         <button type="submit" class="form-submit-btn" id="checkout-submit-btn">
           <span class="btn-text">Place Order 🎉</span>
           <span class="btn-loading" style="display:none;">Processing...</span>

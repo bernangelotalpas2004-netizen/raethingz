@@ -1195,6 +1195,126 @@ button { cursor: pointer; font-family: var(--font-body); }
   animation: shake 0.35s var(--ease);
 }
 
+/* ── Payment Options ──────────────────────────────────────────── */
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--duration) var(--ease), background-color var(--duration) var(--ease);
+}
+
+.payment-option:hover {
+  border-color: var(--clr-primary);
+  background: var(--clr-primary-light);
+}
+
+.payment-option input[type="radio"] {
+  accent-color: var(--clr-primary);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.payment-option:has(input:checked) {
+  border-color: var(--clr-primary);
+  background: var(--clr-primary-light);
+}
+
+.payment-option-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.payment-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-bg);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.payment-option-content strong {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--clr-dark);
+}
+
+.payment-option-content small {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--clr-muted);
+  margin-top: 2px;
+}
+
+/* GCash Details */
+.gcash-details {
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.gcash-info {
+  background: var(--clr-bg);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+}
+
+.gcash-info p {
+  font-size: 0.85rem;
+  color: var(--clr-dark);
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.gcash-account {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.gcash-account:last-of-type {
+  border-bottom: none;
+}
+
+.gcash-label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--clr-muted);
+  min-width: 110px;
+}
+
+.gcash-value {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--clr-dark);
+}
+
+.gcash-note {
+  margin-top: 10px;
+  font-size: 0.78rem !important;
+  color: var(--clr-accent) !important;
+  font-weight: 500;
+}
+
 .form-submit-btn {
   width: 100%;
   padding: 14px;

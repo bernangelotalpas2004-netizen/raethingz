@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS orders (
     status         ENUM('pending','confirmed','crafting','shipped','delivered','cancelled')
                    NOT NULL DEFAULT 'pending',
     notes          TEXT           DEFAULT NULL,
+    payment_method VARCHAR(20)    NOT NULL DEFAULT 'cod',
     created_at     TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 

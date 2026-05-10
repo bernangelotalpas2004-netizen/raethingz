@@ -18,9 +18,11 @@ try {
 
     $orderStmt = $pdo->prepare(
         'SELECT o.order_id, o.status, o.total_amount, o.created_at,
-                COUNT(oi.item_id) AS item_count
+                COUNT(oi.item_id) AS item_count,
+                GROUP_CONCAT(p.product_name SEPARATOR ", ") AS product_names
          FROM   orders o
          LEFT JOIN order_items oi ON oi.order_id = o.order_id
+         LEFT JOIN products p ON p.product_id = oi.product_id
          WHERE  o.user_id = :uid
          GROUP  BY o.order_id
          ORDER  BY o.created_at DESC
@@ -135,6 +137,33 @@ $statusColors = [
     }
     .empty-state { padding: 40px 24px; text-align: center; color: var(--clr-muted); }
     .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .cancel-btn {
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--clr-accent);
+      background: transparent;
+      color: var(--clr-accent);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+    }
+    .cancel-btn:hover {
+      background: var(--clr-accent);
+      color: #fff;
+    }
+    .cancel-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .product-names {
+      font-size: 0.82rem;
+      color: var(--clr-muted);
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
@@ -193,10 +222,11 @@ $statusColors = [
                     <thead>
                       <tr>
                         <th scope="col">Order #</th>
-                        <th scope="col">Items</th>
+                        <th scope="col">Products</th>
                         <th scope="col">Total</th>
                         <th scope="col">Status</th>
                         <th scope="col">Date</th>
+                        <th scope="col">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -204,10 +234,15 @@ $statusColors = [
                         <?php
                           $color = $statusColors[$order['status']] ?? '#6b7280';
                           $date  = date('M j, Y', strtotime($order['created_at']));
+                          $products = htmlspecialchars($order['product_names'] ?? '');
                         ?>
-                        <tr>
+                        <tr id="order-row-<?= (int) $order['order_id'] ?>">
                           <td><strong>#<?= (int) $order['order_id'] ?></strong></td>
-                          <td><?= (int) $order['item_count'] ?> item(s)</td>
+                          <td>
+                            <div class="product-names" title="<?= $products ?>">
+                              <?= $products ?: (int) $order['item_count'] . ' item(s)' ?>
+                            </div>
+                          </td>
                           <td>₱<?= number_format((float) $order['total_amount'], 2) ?></td>
                           <td>
                             <span class="status-badge"
@@ -216,6 +251,16 @@ $statusColors = [
                             </span>
                           </td>
                           <td style="color:var(--clr-muted);"><?= htmlspecialchars($date) ?></td>
+                          <td>
+                            <?php if ($order['status'] === 'pending'): ?>
+                              <button class="cancel-btn" data-order-id="<?= (int) $order['order_id'] ?>"
+                                      onclick="cancelOrder(<?= (int) $order['order_id'] ?>, this)">
+                                Cancel
+                              </button>
+                            <?php else: ?>
+                              <span style="color:var(--clr-muted); font-size:0.78rem;">—</span>
+                            <?php endif; ?>
+                          </td>
                         </tr>
                       <?php endforeach; ?>
                     </tbody>
@@ -280,5 +325,72 @@ $statusColors = [
 
   <?php require_once '../includes/footer.php'; ?>
   <script src="../assets/js/script.js"></script>
+  <script>
+  /**
+   * Cancel an order via AJAX
+   */
+  async function cancelOrder(orderId, btn) {
+    if (!confirm('Are you sure you want to cancel Order #' + orderId + '?')) {
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Cancelling...';
+
+    try {
+      const res = await fetch('cancel_order.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          csrf_token: document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+          order_id: orderId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Update the status badge inline
+        const row = document.getElementById('order-row-' + orderId);
+        if (row) {
+          const statusCell = row.querySelector('.status-badge');
+          if (statusCell) {
+            statusCell.textContent = 'cancelled';
+            statusCell.style.background = '#ef444422';
+            statusCell.style.color = '#ef4444';
+            statusCell.style.borderColor = '#ef444444';
+          }
+          // Remove the cancel button
+          const actionCell = row.querySelector('td:last-child');
+          if (actionCell) {
+            actionCell.innerHTML = '<span style="color:var(--clr-muted); font-size:0.78rem;">—</span>';
+          }
+        }
+        if (typeof Toast !== 'undefined') {
+          Toast.show(data.message, 'success');
+        } else {
+          alert(data.message);
+        }
+      } else {
+        if (typeof Toast !== 'undefined') {
+          Toast.show(data.message || 'Could not cancel order.', 'error');
+        } else {
+          alert(data.message || 'Could not cancel order.');
+        }
+        btn.disabled = false;
+        btn.textContent = 'Cancel';
+      }
+    } catch (err) {
+      console.error('Cancel error:', err);
+      if (typeof Toast !== 'undefined') {
+        Toast.show('Network error. Please try again.', 'error');
+      } else {
+        alert('Network error. Please try again.');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Cancel';
+    }
+  }
+  </script>
 </body>
 </html>
