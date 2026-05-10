@@ -5,6 +5,21 @@ require_once '../includes/db.php';
 require_once '../includes/auth.php';
 require_once '../includes/helpers.php';
 
+// ── Ensure clean JSON output — catch fatal errors ────────────────────
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode([
+            'success' => false,
+            'message' => DEBUG_MODE
+                ? "Fatal: {$err['message']} in {$err['file']}:{$err['line']}"
+                : 'A server error occurred. Your order was not placed.',
+        ]);
+    }
+});
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(false, 'Method not allowed.', [], 405);
 }
@@ -45,25 +60,16 @@ try {
     $placeholders = implode(',', array_fill(0, count($items), '?'));
     $productIds   = array_map(fn($i) => (int)($i['id'] ?? 0), $items);
 
-    $priceStmt = $pdo->prepare(
-        "SELECT p.product_id, p.product_name, p.price, s.quantity
-         FROM   products p
-         LEFT JOIN stock s ON s.product_id = p.product_id
-         WHERE  p.product_id IN ($placeholders) AND p.is_active = 1"
-    );
-    $priceStmt->execute($productIds);
-    $dbProducts = $priceStmt->fetchAll(PDO::FETCH_KEY_PAIR | PDO::FETCH_UNIQUE);
-
     // Rebuild priced items using DB prices, reject unknown products
-    $priceStmt2 = $pdo->prepare(
+    $priceStmt = $pdo->prepare(
         "SELECT p.product_id AS id, p.product_name AS name, p.price, s.quantity
          FROM   products p
          LEFT JOIN stock s ON s.product_id = p.product_id
          WHERE  p.product_id IN ($placeholders) AND p.is_active = 1"
     );
-    $priceStmt2->execute($productIds);
+    $priceStmt->execute($productIds);
     $dbRows = [];
-    while ($row = $priceStmt2->fetch()) {
+    while ($row = $priceStmt->fetch()) {
         $dbRows[$row['id']] = $row;
     }
 
@@ -145,8 +151,14 @@ try {
         'total'    => $total,
     ]);
 
-} catch (PDOException $e) {
-    if ($pdo->inTransaction()) $pdo->rollBack();
-    error_log('[place_order Error] ' . $e->getMessage());
-    jsonResponse(false, 'A server error occurred. Your order was not placed.', [], 500);
+} catch (\Throwable $e) {
+    if (isset($pdo) && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('[place_order Error] ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    // Return the actual error in debug mode, generic message otherwise
+    $msg = defined('DEBUG_MODE') && DEBUG_MODE
+        ? $e->getMessage()
+        : 'A server error occurred. Your order was not placed.';
+    jsonResponse(false, $msg, ['file' => $e->getFile(), 'line' => $e->getLine()], 500);
 }

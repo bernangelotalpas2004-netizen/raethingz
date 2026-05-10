@@ -144,7 +144,7 @@ function getCSRFToken() {
 
 /* ================================================================
    NAVBAR MODULE
-   Sticky scroll shadow, hamburger toggle, active link.
+   Sticky scroll shadow, hamburger toggle, active link, dropdown.
    ================================================================ */
 function initNavbar() {
   const hamburger = document.getElementById('hamburger');
@@ -165,7 +165,7 @@ function initNavbar() {
       hamburger.setAttribute('aria-expanded', isOpen);
     });
 
-    // Close on link click
+    // Close on link click (including mobile dropdown items)
     mobileNav.querySelectorAll('a').forEach(link =>
       link.addEventListener('click', () => {
         mobileNav.classList.remove('open');
@@ -181,6 +181,48 @@ function initNavbar() {
       }
     });
   }
+
+  // ── Desktop Dropdown Toggle (click support) ────────────────────
+  const dropdownToggles = document.querySelectorAll('.nav-dropdown-toggle');
+  dropdownToggles.forEach(toggle => {
+    // Click: toggle aria-expanded
+    toggle.addEventListener('click', (e) => {
+      // If already expanded, allow normal link navigation
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      if (!expanded) {
+        e.preventDefault(); // prevent link navigation when opening dropdown
+      }
+      toggle.setAttribute('aria-expanded', !expanded);
+    });
+
+    // Blur: close dropdown when focus leaves
+    toggle.addEventListener('blur', (e) => {
+      // Small delay to allow focusing a menu item
+      setTimeout(() => {
+        const parent = toggle.closest('.nav-dropdown');
+        if (!parent?.contains(document.activeElement)) {
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      }, 100);
+    });
+  });
+
+  // Close dropdown on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      dropdownToggles.forEach(t => t.setAttribute('aria-expanded', 'false'));
+    }
+  });
+
+  // Close when clicking outside any dropdown
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+      if (!dropdown.contains(e.target)) {
+        const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
 
   Cart.updateBadge();
 }
@@ -447,6 +489,20 @@ async function initProducts() {
   let allProducts = [];
   let activeCategory = 'all';
 
+  // ── Read initial category from URL query param ─────────────────
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlCategory = urlParams.get('category');
+  if (urlCategory) {
+    activeCategory = urlCategory;
+  }
+
+  // ── Update filter button active state based on URL param ───────
+  if (urlCategory) {
+    filterBtns.forEach(btn => {
+      btn.classList.toggle('active-filter', btn.dataset.category === urlCategory);
+    });
+  }
+
   // ── Load products from DB ──────────────────────────────────────
   async function loadProducts(category = 'all', search = '') {
     grid.innerHTML = `<div class="loading-grid"><div class="spinner"></div> Loading products...</div>`;
@@ -469,7 +525,7 @@ async function initProducts() {
     }
   }
 
-  await loadProducts();
+  await loadProducts(activeCategory);
 
   // Search (debounced)
   searchInput?.addEventListener('input', debounce(() => {

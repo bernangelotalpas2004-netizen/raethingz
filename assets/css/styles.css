@@ -275,6 +275,89 @@ button { cursor: pointer; font-family: var(--font-body); }
   color: #fff;
 }
 
+/* ── Dropdown (Desktop) ────────────────────────────────────────── */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--clr-dark);
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+  cursor: pointer;
+}
+
+.nav-dropdown-toggle:hover,
+.nav-dropdown-toggle.active {
+  background: var(--clr-primary);
+  color: #fff;
+}
+
+.dropdown-arrow {
+  font-size: 0.65rem;
+  transition: transform var(--duration) var(--ease);
+}
+
+.nav-dropdown:hover .dropdown-arrow,
+.nav-dropdown-toggle[aria-expanded="true"] .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity var(--duration) var(--ease),
+              visibility var(--duration) var(--ease),
+              transform var(--duration) var(--ease);
+  z-index: 1001;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu,
+.nav-dropdown-toggle[aria-expanded="true"] + .nav-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.nav-dropdown-menu li a {
+  display: block;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--clr-dark);
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+  white-space: nowrap;
+}
+
+.nav-dropdown-menu li a:hover {
+  background: var(--clr-primary-light);
+  color: var(--clr-primary-dark);
+}
+
+/* Mobile dropdown sub-items */
+.mobile-dropdown-item {
+  padding-left: 32px !important;
+  font-size: 0.82rem !important;
+  color: var(--clr-muted) !important;
+}
+
 .nav-link-logout {
   padding: 8px 16px;
   border-radius: var(--radius-full);
